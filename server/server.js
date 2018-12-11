@@ -14,6 +14,7 @@ var app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
+mongoose.set('useFindAndModify', false);
 
 // POST Todo
 app.post('/todos', (req, res) => {
@@ -45,7 +46,7 @@ app.get('/todos/:id', (req, res) => {
     res.status(404).send({errorMessage: 'Todo not found'})
   }
   else {
-      Todo.findById(id).then((todo) => {
+      Todo.findOne({_id: id}).then((todo) => {
         if (todo) {
           res.send({todo});
         }
@@ -66,7 +67,7 @@ app.delete('/todos/:id', (req, res) => {
     res.status(404).send({errorMessage: 'Todo not found'})
   }
   else {
-    Todo.findByIdAndDelete(id).then((todo) => {
+    Todo.findOneAndDelete({_id: id}).then((todo) => {
       if (todo) {
         res.send({todo});
       }
@@ -96,7 +97,7 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todo.findOneAndUpdate({_id: id}, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       return res.status(404).send({errorMessage: 'Could not load todo.'})
     }
@@ -122,7 +123,6 @@ app.post('/users', (req, res) => {
 });
 
 app.get('/users/me', authenticate, (req, res) => {
-  console.log('final step');
   res.send(req.user);
 });
 
